@@ -1,0 +1,22 @@
+# base image
+FROM python:3.9.0-slim-buster
+
+# working directory
+WORKDIR /usr/src/app
+
+# environment variables
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONBUFFERED 1
+
+# system dependencies
+RUN apt-get update \
+    && apt-get -y install netcat gcc \
+    && apt-get clean
+
+# python dependencies
+RUN pip install --upgrade pip
+COPY ./requirements.txt .
+RUN pip install -r requirements.txt
+
+# add app
+COPY . .
