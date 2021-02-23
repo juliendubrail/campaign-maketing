@@ -1,16 +1,19 @@
+from fastapi import FastAPI
 
-from fastapi import FastAPI, Depends
+from user_service.api import users, ping
+from user_service.db import engine, metadata, database
 
-from user_service.config import get_settings, Settings
+metadata.create_all(engine)
 
+user_service = FastAPI()
 
-app = FastAPI()
+@user_service.on_event("startup")
+async def startup():
+    await database.connect()
 
-@app.get("/ping")
-async def pong(settings: Settings = Depends(get_settings)):
-    return {
-        "ping":"pong!",
-        "environment": settings.environment,
-        "testing": settings.testing
-    }
+@user_service.on_event("shutdown")
+async def shutdown():
+    await database.connect()
 
+user_service.include_router(ping.router)
+user_service.include_router(users.router, prefix="/users", tags=["users"])

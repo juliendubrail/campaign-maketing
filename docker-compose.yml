@@ -3,7 +3,7 @@ version: '3.8'
 services:
   user:
     build: ./microservices
-    command: uvicorn user_service.main:app --reload --workers 1 --host 0.0.0.0 --port 8000
+    command: uvicorn user_service.main:user_service --reload --workers 1 --host 0.0.0.0 --port 8000
     volumes:
       - ./microservices:/usr/src/app
     ports:
@@ -11,5 +11,15 @@ services:
     environment:
       - ENVIRONMENT=dev
       - TESTING=0
-
+      - DATABASE_URL=postgresql://fastuser:fastpass@db/fastdb
+  db:
+    image: postgres:12.1-alpine 
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment: 
+      - POSTGRES_USER=fastuser
+      - POSTGRES_PASSWORD=fastpass
+      - POSTGRES_DB=fastdb
+volumes: 
+  postgres_data:
 
